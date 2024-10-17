@@ -7,7 +7,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - database_postgres:/var/lib/postgresql/data
+      - nidus_db:/var/lib/postgresql/data
     networks:
       - nidus_go_docker
 
@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '8080:8080'
+      - '3000:3000'
     restart: on-failure
     env_file:
       - .env
@@ -29,7 +29,7 @@ services:
       - nidus_go_docker
 
 volumes:
-  database_postgres:
+  nidus_db:
   api:
 
 networks:
