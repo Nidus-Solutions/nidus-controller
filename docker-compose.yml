@@ -8,29 +8,6 @@ services:
       - "5432:5432"
     volumes:
       - nidus_db:/var/lib/postgresql/data
-    networks:
-      - nidus_go_docker
-
-  app:
-    container_name: go_app
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - '3000:3000'
-    restart: on-failure
-    env_file:
-      - .env
-    volumes:
-      - api:/usr/src/app
-    depends_on:
-      - postgres
-    networks:
-      - nidus_go_docker
-
+    
 volumes:
   nidus_db:
-  api:
-
-networks:
-  nidus_go_docker:

@@ -1,16 +1,17 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var db *sql.DB
+var db *gorm.DB
 
 func goDotEnvVariable(key string) string {
 
@@ -23,24 +24,20 @@ func goDotEnvVariable(key string) string {
 	return os.Getenv(key)
 }
 
-func ConnectToDatabase() *sql.DB {
+func ConnectToDatabase() {
 	var err error
 	pUser := goDotEnvVariable("POSTGRES_USER")
 	pPass := goDotEnvVariable("POSTGRES_PASSWORD")
 	pDB := goDotEnvVariable("POSTGRES_DB")
+	pHost := goDotEnvVariable("POSTGRES_HOST")
 
-	urlDB := fmt.Sprintf("postgres://%s:%s@postgres/%s?sslmode=disable", pUser, pPass, pDB)
+	urlDB := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432", pHost, pUser, pPass, pDB)
 
-	db, err = sql.Open("postgres", urlDB)
+	db, err = gorm.Open(postgres.Open(urlDB), &gorm.Config{})
+
 	if err != nil {
-		panic(err)
+		log.Panic(err.Error())
 	}
 
-	if err = db.Ping(); err != nil {
-		panic(err)
-	}
-
-	fmt.Println("You connected to yout database.")
-
-	return db
+	log.Println("Your database is connected")
 }
