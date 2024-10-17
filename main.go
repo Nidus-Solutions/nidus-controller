@@ -2,14 +2,19 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	db "github.com/jgb27/nidus-controller-projects/database"
+	"github.com/jgb27/nidus-controller-projects/database"
+	"github.com/jgb27/nidus-controller-projects/models"
 	routes "github.com/jgb27/nidus-controller-projects/routes"
 )
 
 func main() {
 	app := gin.Default()
 
-	db.ConnectToDatabase()
+	database.ConnectToDatabase()
+
+	database.DB.AutoMigrate(models.Admin{})
+	database.DB.AutoMigrate(models.User{})
+	database.DB.AutoMigrate(models.Project{})
 
 	routes.Routes(app)
 

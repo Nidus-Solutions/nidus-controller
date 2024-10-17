@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
+var DB *gorm.DB
 
 func goDotEnvVariable(key string) string {
 
@@ -33,7 +33,7 @@ func ConnectToDatabase() {
 
 	urlDB := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432", pHost, pUser, pPass, pDB)
 
-	db, err = gorm.Open(postgres.Open(urlDB), &gorm.Config{})
+	DB, err = gorm.Open(postgres.Open(urlDB), &gorm.Config{})
 
 	if err != nil {
 		log.Panic(err.Error())
