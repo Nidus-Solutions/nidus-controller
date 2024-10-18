@@ -8,9 +8,11 @@ import (
 type Admin struct {
 	gorm.Model
 
-	ID      string `gorm:"primaryKey; not null; unique_index;"`
-	Name    string `gorm:"not null; unique_index;"`
-	IsAdmin bool   `gorm:"not null; default:true;"`
+	ID       string `gorm:"primaryKey; not null; unique_index;" json:"id"`
+	Name     string `gorm:"not null; unique_index;" json:"name"`
+	Username string `gorm:"not null; unique_index;" json:"username"`
+	Password string `gorm:"not null;" json:"password"`
+	IsAdmin  bool   `gorm:"not null; default:true;" json:"is_admin"`
 }
 
 func NewAdmin() *Admin {

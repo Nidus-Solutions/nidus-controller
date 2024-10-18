@@ -18,5 +18,5 @@ func main() {
 
 	routes.Routes(app)
 
-	app.Run(":8080")
+	app.Run(":3000")
 }
