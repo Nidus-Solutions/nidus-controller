@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jgb27/nidus-controller-projects/database"
 	"github.com/jgb27/nidus-controller-projects/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func LoginAdmin(ctx *gin.Context) {
@@ -19,21 +20,30 @@ func LoginAdmin(ctx *gin.Context) {
 	}
 
 	var checkAdmin models.Admin
-	database.DB.Where("username = ? AND password = ?", admin.Username, admin.Password).First(&checkAdmin)
+	database.DB.Where("username = ?", admin.Username).First(&checkAdmin)
+
+	if bcrypt.CompareHashAndPassword([]byte(checkAdmin.Password), []byte(admin.Password)) != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "Usuario ou senha invalidos"})
+		return
+	}
 
 	if checkAdmin.Username == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Usuario ou senha invalidos"})
 		return
 	}
 
-	checkAdmin.Password = ""
-
-	ctx.JSON(http.StatusOK, checkAdmin)
+	ctx.JSON(http.StatusOK, gin.H{
+		"name":     checkAdmin.Name,
+		"username": checkAdmin.Username,
+		"id":       checkAdmin.ID,
+	})
 }
 
 func NewAdmin(ctx *gin.Context) {
 	admin := models.NewAdmin()
 	ctx.BindJSON(&admin)
+
+	cost := bcrypt.DefaultCost
 
 	if admin.Name == "" || admin.Username == "" || admin.Password == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Preencha todos os campos"})
@@ -46,6 +56,15 @@ func NewAdmin(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Usuario ja existe"})
 		return
 	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(admin.Password), cost)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao gerar hash"})
+		return
+	}
+
+	admin.Password = string(hash)
 
 	if err := database.DB.Create(&admin).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao criar usuario"})
