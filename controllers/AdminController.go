@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -105,8 +104,6 @@ func EditAdmin(ctx *gin.Context) {
 
 func DeleteAdmin(ctx *gin.Context) {
 	id := ctx.Param("id")
-
-	fmt.Printf("ID: %s\n", id)
 
 	if id == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID nao encontrado"})

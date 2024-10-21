@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -20,7 +19,7 @@ func goDotEnvVariable(key string) string {
 	if err != nil {
 		log.Fatalf("Error loading .env file: %s", err)
 	}
-
+	fmt.Print(os.Getenv(key))
 	return os.Getenv(key)
 }
 
