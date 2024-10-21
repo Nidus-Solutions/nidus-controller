@@ -67,7 +67,8 @@ func GetAllProjects(ctx *gin.Context) {
 }
 
 func GetProjectByUserId(ctx *gin.Context) {
-	id := ctx.Param("id")
+	currentUser, _ := ctx.Get("currentUser")
+	id := currentUser.(models.User).ID
 
 	var project []models.Project
 

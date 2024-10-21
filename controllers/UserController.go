@@ -40,6 +40,7 @@ func LoginUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
+		"token":    GenerateTokenUser(&checkUser),
 		"name":     checkUser.Name,
 		"username": checkUser.UserName,
 		"id":       checkUser.ID,
@@ -74,11 +75,28 @@ func NewUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, newUser)
+	resultUser := models.User{}
+
+	resultUser.ID = newUser.ID
+	resultUser.Name = newUser.Name
+	resultUser.UserName = newUser.UserName
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Usuario criado com sucesso",
+		"user":    resultUser,
+		"token":   GenerateTokenUser(&resultUser),
+	})
 }
 
 func EditUser(ctx *gin.Context) {
-	id := ctx.Param("id")
+	currentUser, _ := ctx.Get("currentUser")
+	id := currentUser.(models.User).ID
+
+	if id == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID nao encontrado"})
+		return
+	}
+
 	var user models.User
 	ctx.BindJSON(&user)
 

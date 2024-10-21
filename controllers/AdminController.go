@@ -9,6 +9,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func GetAllAdmin(ctx *gin.Context) {
+	var admins []models.Admin
+	database.DB.Find(&admins)
+
+	for i := range admins {
+		admins[i].Password = ""
+	}
+
+	ctx.JSON(http.StatusOK, admins)
+}
+
 func LoginAdmin(ctx *gin.Context) {
 	var admin models.Admin
 	ctx.BindJSON(&admin)
@@ -32,6 +43,7 @@ func LoginAdmin(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
+		"token":    GenerateTokenAdmin(&checkAdmin),
 		"name":     checkAdmin.Name,
 		"username": checkAdmin.Username,
 		"id":       checkAdmin.ID,
@@ -77,6 +89,9 @@ func NewAdmin(ctx *gin.Context) {
 }
 
 func EditAdmin(ctx *gin.Context) {
+	currentAdmin, _ := ctx.Get("currentAdmin")
+	id := currentAdmin.(models.Admin).ID
+
 	var NewAdmin models.Admin
 	ctx.BindJSON(&NewAdmin)
 
@@ -86,7 +101,7 @@ func EditAdmin(ctx *gin.Context) {
 	}
 
 	var admin models.Admin
-	database.DB.Where("id = ?", NewAdmin.ID).First(&admin)
+	database.DB.Where("id = ?", id).First(&admin)
 
 	if admin.Username == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Usuario nao encontrado"})
