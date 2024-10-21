@@ -19,6 +19,7 @@ func Routes(router *gin.Engine) *gin.RouterGroup {
 		routes.POST("/project", controllers.NewProject)
 		routes.GET("/projects", controllers.GetAllProjects)
 		routes.PUT("/project/:id", controllers.EditProject)
+		routes.DELETE("/project/:id", controllers.DeleteProject)
 
 		// Admin user
 		routes.POST("/user", controllers.NewUser)

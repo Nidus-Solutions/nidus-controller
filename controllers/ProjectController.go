@@ -21,11 +21,12 @@ func NewProject(ctx *gin.Context) {
 }
 
 func EditProject(ctx *gin.Context) {
+	id := ctx.Param("id")
 	var project models.Project
 	ctx.BindJSON(&project)
 
 	var projectDB models.Project
-	database.DB.Where("id = ?", project.ID).First(&projectDB)
+	database.DB.Where("id = ?", id).First(&projectDB)
 
 	if projectDB.ID == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Projeto nao encontrado"})
@@ -37,7 +38,8 @@ func EditProject(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, project)
+	ctx.JSON(http.StatusOK, gin.H{"message": "Projeto atualizado com sucesso"})
+
 }
 
 func DeleteProject(ctx *gin.Context) {
