@@ -8,14 +8,14 @@ import (
 type Project struct {
 	gorm.Model
 
-	ID        string  `gorm:"primaryKey; not null; unique_index;" json:"id"`
-	UserId    string  `gorm:"not null;foreignKey=ID" json:"userId"`
-	Name      string  `gorm:"type=varchar(255); not null;" json:"name"`
-	Company   string  `gorm:"type=varchar(255); not null;" json:"company"`
-	Documents string  `gorm:"type=string; not null;" json:"documents"`
-	CNPJ      string  `gorm:"type=varchar(18); not null; unique_index;" json:"cnpj"`
-	Value     float64 `gorm:"not null;" json:"value"`
-	Deadline  string  `gorm:"type=string; not null;"`
+	ID        string     `gorm:"primaryKey; not null; unique_index;" json:"id"`
+	UserID    string     `gorm:"not null" json:"userId"`
+	Name      string     `gorm:"type=varchar(255); not null;" json:"name"`
+	Company   string     `gorm:"type=varchar(255); not null;" json:"company"`
+	CNPJ      string     `gorm:"type=varchar(18); not null; unique_index;" json:"cnpj"`
+	Value     float64    `gorm:"not null;" json:"value"`
+	Deadline  string     `gorm:"type=varchar(255); not null;" json:"deadline"`
+	Documents []Document `gorm:"foreignKey:ProjectID" json:"documents"`
 }
 
 func NewProject() *Project {

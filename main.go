@@ -15,6 +15,7 @@ func main() {
 	database.DB.AutoMigrate(models.Admin{})
 	database.DB.AutoMigrate(models.User{})
 	database.DB.AutoMigrate(models.Project{})
+	database.DB.AutoMigrate(models.Document{})
 
 	routes.Routes(app)
 

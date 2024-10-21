@@ -12,7 +12,7 @@ func Routes(router *gin.Engine) *gin.RouterGroup {
 		// Admin controller
 		routes.GET("/", middlewares.CheckAuthAdmin, controllers.GetAllAdmin)
 		routes.POST("/", controllers.LoginAdmin)
-		routes.POST("/newadmin", middlewares.CheckAuthAdmin, controllers.NewAdmin)
+		routes.POST("/newadmin", controllers.NewAdmin)
 		routes.PUT("/", middlewares.CheckAuthAdmin, controllers.EditAdmin)
 		routes.DELETE("/:id", middlewares.CheckAuthAdmin, controllers.DeleteAdmin)
 		routes.DELETE("/user/:id", middlewares.CheckAuthAdmin, controllers.DeleteUser)
