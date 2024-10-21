@@ -9,6 +9,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func GetAllUsers(ctx *gin.Context) {
+	var users []models.User
+
+	database.DB.Find(&users)
+
+	ctx.JSON(http.StatusOK, users)
+}
+
 func LoginUser(ctx *gin.Context) {
 	var user models.User
 	ctx.BindJSON(&user)
