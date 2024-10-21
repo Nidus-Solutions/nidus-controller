@@ -8,6 +8,7 @@ import (
 func Routes(router *gin.Engine) *gin.RouterGroup {
 	routes := router.Group("/admin")
 	{
+		// Admin controller
 		routes.POST("/", controllers.NewAdmin)
 		routes.POST("/login", controllers.LoginAdmin)
 		routes.PUT("/", controllers.EditAdmin)
@@ -16,17 +17,19 @@ func Routes(router *gin.Engine) *gin.RouterGroup {
 
 		// Admin Project
 		routes.POST("/project", controllers.NewProject)
-		routes.GET("/project", controllers.GetAllProjects)
+		routes.GET("/projects", controllers.GetAllProjects)
+		routes.PUT("/project/:id", controllers.EditProject)
 
 		// Admin user
 		routes.POST("/user", controllers.NewUser)
+		routes.GET("/user", controllers.GetAllUsers)
 	}
 
 	routes = router.Group("/user")
 	{
 		routes.POST("/", controllers.LoginUser)
 		routes.PUT("/:id", controllers.EditUser) // ID tpm, depois vai pegar pelo token
-		routes.GET("/project/:id", controllers.GetProjectById)
+		routes.GET("/project/:id", controllers.GetProjectByUserId)
 	}
 	return routes
 }
