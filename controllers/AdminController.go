@@ -51,6 +51,7 @@ func NewAdmin(ctx *gin.Context) {
 
 	var checkAdmin models.Admin
 	database.DB.Where("username = ?", admin.Username).First(&checkAdmin)
+
 	if checkAdmin.Username != "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Usuario ja existe"})
 		return
