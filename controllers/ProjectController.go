@@ -20,29 +20,56 @@ func NewProject(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, project)
 }
 
-func EditProject() {
+func EditProject(ctx *gin.Context) {
+	var project models.Project
+	ctx.BindJSON(&project)
+
+	var projectDB models.Project
+	database.DB.Where("id = ?", project.ID).First(&projectDB)
+
+	if projectDB.ID == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Projeto nao encontrado"})
+		return
+	}
+
+	if err := database.DB.Model(&projectDB).Updates(&project).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao atualizar projeto"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, project)
 }
 
-func DeleteProject() {
+func DeleteProject(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	if id == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID nao encontrado"})
+		return
+	}
+
+	if err := database.DB.Where("id = ?", id).Delete(&models.Project{}).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao se comunicar com o DB"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Projeto deletado com sucesso"})
 }
 
 func GetAllProjects(ctx *gin.Context) {
 	var project []models.Project
 
-	database.DB.Raw("SELECT * FROM projects").Scan(&project)
+	database.DB.Find(&project)
 
 	ctx.JSON(http.StatusOK, project)
 }
 
-func GetProjectById(ctx *gin.Context) {
+func GetProjectByUserId(ctx *gin.Context) {
 	id := ctx.Param("id")
+
 	var project []models.Project
 
-	database.DB.Raw(`
-		SELECT projects.id AS project_id, projects.name AS project_name, users.name AS user_name
-		FROM projects JOIN users ON projects.user_id = users.id
-		WHERE users.id = ? ORDER BY projects.name;`,
-		id).Scan(&project)
+	database.DB.Where("user_id = ?", id).Find(&project)
 
 	ctx.JSON(http.StatusOK, project)
 }
