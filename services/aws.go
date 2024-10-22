@@ -38,7 +38,7 @@ func Aws() *s3.Client {
 	return client
 }
 
-func Upload(f *multipart.FileHeader, id string) error {
+func UploadToAws(f *multipart.FileHeader, id string) error {
 	client := Aws()
 	ctx := context.TODO()
 

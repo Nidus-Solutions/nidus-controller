@@ -35,7 +35,7 @@ func uploadDocument(ctx *gin.Context, project *models.Project) error {
 			return errors.New("somente PDF")
 		}
 
-		if err := services.Upload(file, project.ID); err != nil {
+		if err := services.UploadToAws(file, project.ID); err != nil {
 			return errors.New("erro ao fazer upload")
 		}
 
@@ -158,10 +158,20 @@ func EditProject(ctx *gin.Context) {
 
 func DeleteProject(ctx *gin.Context) {
 	id := ctx.Param("id")
+	var documents []models.Document
 
 	if id == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID nao encontrado"})
 		return
+	}
+
+	database.DB.Where("project_id = ?", id).Find(&documents)
+
+	for _, doc := range documents {
+		if err := database.DB.Delete(&doc).Error; err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao deletar arquivo"})
+			return
+		}
 	}
 
 	if err := database.DB.Where("id = ?", id).Delete(&models.Project{}).Error; err != nil {
