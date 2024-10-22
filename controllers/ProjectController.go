@@ -18,7 +18,8 @@ var (
 	ENV             = services.LoadEnv("ENV")
 )
 
-func uploadDocument(ctx *gin.Context) models.Project {
+func NewProject(ctx *gin.Context) {
+	var user models.User
 	var project = models.NewProject()
 	form, _ := ctx.MultipartForm()
 	files := form.File["files"]
@@ -36,13 +37,6 @@ func uploadDocument(ctx *gin.Context) models.Project {
 		database.DB.Create(&Documents)
 		project.Documents = append(project.Documents, *Documents)
 	}
-
-	return *project
-}
-
-func NewProject(ctx *gin.Context) {
-	var user models.User
-	var project = uploadDocument(ctx)
 
 	if err := database.DB.Where("id = ?", ctx.PostForm("userId")).First(&user).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Usuário não encontrado"})
@@ -74,24 +68,43 @@ func NewProject(ctx *gin.Context) {
 
 func EditProject(ctx *gin.Context) {
 	id := ctx.Param("id")
+
+	if id == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID nao encontrado"})
+		return
+	}
+
 	var project models.Project
-	ctx.BindJSON(&project)
 
-	var projectDB models.Project
-	database.DB.Where("id = ?", id).First(&projectDB)
-
-	if projectDB.ID == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Projeto nao encontrado"})
+	if err := database.DB.Where("id = ?", id).First(&project).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Projeto não encontrado"})
 		return
 	}
 
-	if err := database.DB.Model(&projectDB).Updates(&project).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao atualizar projeto"})
+	if ctx.PostForm("file") != "" {
+		var document []models.Document
+
+		database.DB.Where("project_id = ?", id).Find(&document)
+
+		log.Println(document)
+	}
+
+	value, err := strconv.ParseFloat(ctx.PostForm("value"), 64)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Valor inválido"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Projeto atualizado com sucesso"})
+	database.DB.Model(&project).Updates(models.Project{
+		Name:     ctx.PostForm("name"),
+		Company:  ctx.PostForm("company"),
+		CNPJ:     ctx.PostForm("cnpj"),
+		Deadline: ctx.PostForm("deadline"),
+		Value:    value,
+	})
 
+	ctx.JSON(http.StatusOK, project)
 }
 
 func DeleteProject(ctx *gin.Context) {

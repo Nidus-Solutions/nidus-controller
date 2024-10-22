@@ -51,7 +51,7 @@ func Upload(f *multipart.FileHeader) error {
 		Bucket: BucketName,
 		Key:    aws.String(Prefix + "/" + f.Filename),
 		Body:   file,
-		ACL:    "public-read",
+		ACL:    "public-read", // temporário
 	}
 
 	_, err = client.PutObject(ctx, upload)
