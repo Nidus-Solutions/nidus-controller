@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -8,29 +9,40 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jgb27/nidus-controller-projects/database"
 	"github.com/jgb27/nidus-controller-projects/models"
+	"github.com/jgb27/nidus-controller-projects/services"
 )
 
-func NewProject(ctx *gin.Context) {
-	var user models.User
+var (
+	AWS_REGION      = services.LoadEnv("AWS_REGION")
+	AWS_BUCKET_NAME = services.LoadEnv("AWS_BUCKET_NAME")
+	ENV             = services.LoadEnv("ENV")
+)
+
+func uploadDocument(ctx *gin.Context) models.Project {
 	var project = models.NewProject()
-
 	form, _ := ctx.MultipartForm()
-
 	files := form.File["files"]
 
 	for _, file := range files {
 		var Documents = models.NewDocument()
 
-		if err := ctx.SaveUploadedFile(file, "uploads/"+file.Filename); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao salvar arquivo"})
-			return
+		if err := services.Upload(file); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao fazer upload do arquivo"})
 		}
+
 		Documents.ProjectID = project.ID
 		Documents.Name = file.Filename
-		Documents.Link = "uploads/" + file.Filename
+		Documents.Link = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s/%s", AWS_REGION, AWS_BUCKET_NAME, ENV, file.Filename)
 		database.DB.Create(&Documents)
 		project.Documents = append(project.Documents, *Documents)
 	}
+
+	return *project
+}
+
+func NewProject(ctx *gin.Context) {
+	var user models.User
+	var project = uploadDocument(ctx)
 
 	if err := database.DB.Where("id = ?", ctx.PostForm("userId")).First(&user).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Usuário não encontrado"})

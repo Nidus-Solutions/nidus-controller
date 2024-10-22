@@ -7,15 +7,13 @@ import (
 	routes "github.com/jgb27/nidus-controller-projects/routes"
 )
 
+func init() {
+	database.ConnectToDatabase()
+	database.DB.AutoMigrate(models.Admin{}, models.User{}, models.Project{}, models.Document{})
+}
+
 func main() {
 	app := gin.Default()
-
-	database.ConnectToDatabase()
-
-	database.DB.AutoMigrate(models.Admin{})
-	database.DB.AutoMigrate(models.User{})
-	database.DB.AutoMigrate(models.Project{})
-	database.DB.AutoMigrate(models.Document{})
 
 	routes.Routes(app)
 
