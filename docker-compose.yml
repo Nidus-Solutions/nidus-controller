@@ -8,6 +8,25 @@ services:
       - "5432:5432"
     volumes:
       - nidus_db:/var/lib/postgresql/data
-    
+    networks:
+      - nidus_network
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nidus_app
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    networks:
+      - nidus_network
+    depends_on:
+      - postgres
 volumes:
   nidus_db:
+networks:
+  nidus_network:
+    driver: bridge

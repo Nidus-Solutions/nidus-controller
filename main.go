@@ -5,6 +5,7 @@ import (
 	"github.com/jgb27/nidus-controller-projects/database"
 	"github.com/jgb27/nidus-controller-projects/models"
 	routes "github.com/jgb27/nidus-controller-projects/routes"
+	"github.com/jgb27/nidus-controller-projects/services"
 )
 
 func init() {
@@ -13,9 +14,10 @@ func init() {
 }
 
 func main() {
+	port := services.LoadEnv("PORT")
 	app := gin.Default()
 
 	routes.Routes(app)
 
-	app.Run(":3000")
+	app.Run(":" + port)
 }
