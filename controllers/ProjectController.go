@@ -35,7 +35,7 @@ func uploadDocument(ctx *gin.Context, project *models.Project) {
 			return
 		}
 
-		if err := services.Upload(file); err != nil {
+		if err := services.Upload(file, project.ID); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao fazer upload do arquivo"})
 		}
 

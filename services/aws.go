@@ -38,7 +38,7 @@ func Aws() *s3.Client {
 	return client
 }
 
-func Upload(f *multipart.FileHeader) error {
+func Upload(f *multipart.FileHeader, id string) error {
 	client := Aws()
 	ctx := context.TODO()
 
@@ -49,7 +49,7 @@ func Upload(f *multipart.FileHeader) error {
 
 	upload := &s3.PutObjectInput{
 		Bucket: BucketName,
-		Key:    aws.String(Prefix + "/" + f.Filename),
+		Key:    aws.String(Prefix + "/" + id + "/" + f.Filename),
 		Body:   file,
 		ACL:    "public-read", // temporário
 	}
