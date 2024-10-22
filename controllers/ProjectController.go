@@ -32,7 +32,7 @@ func uploadDocument(ctx *gin.Context) models.Project {
 
 		Documents.ProjectID = project.ID
 		Documents.Name = file.Filename
-		Documents.Link = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s/%s", AWS_REGION, AWS_BUCKET_NAME, ENV, file.Filename)
+		Documents.Link = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s/%s", AWS_BUCKET_NAME, AWS_REGION, ENV, file.Filename)
 		database.DB.Create(&Documents)
 		project.Documents = append(project.Documents, *Documents)
 	}

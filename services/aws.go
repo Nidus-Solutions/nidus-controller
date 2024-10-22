@@ -26,7 +26,8 @@ func Aws() *s3.Client {
 				AccessKeyID:     LoadEnv("AWS_ACCESS_KEY"),
 				SecretAccessKey: LoadEnv("AWS_SECRET_KEY"),
 			},
-		}))
+		}),
+	)
 
 	if err != nil {
 		log.Fatal(err)
@@ -50,6 +51,7 @@ func Upload(f *multipart.FileHeader) error {
 		Bucket: BucketName,
 		Key:    aws.String(Prefix + "/" + f.Filename),
 		Body:   file,
+		ACL:    "public-read",
 	}
 
 	_, err = client.PutObject(ctx, upload)
