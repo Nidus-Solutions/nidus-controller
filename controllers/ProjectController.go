@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,40 +19,44 @@ var (
 	ENV             = services.LoadEnv("ENV")
 )
 
-func uploadDocument(ctx *gin.Context, project *models.Project) {
+func uploadDocument(ctx *gin.Context, project *models.Project) error {
+	url := "https://%s.s3.%s.amazonaws.com/%s/%s/%s"
 	form, _ := ctx.MultipartForm()
 	files := form.File["files"]
 
 	for _, file := range files {
 		var Documents = models.NewDocument()
 
-		if file.Size > 1000000 {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Arquivo muito grande"})
-			return
+		if file.Size > 5000000 {
+			return errors.New("arquivo muito grande")
 		}
 
 		if file.Header.Get("Content-Type") != "application/pdf" {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Arquivo não é um PDF"})
-			return
+			return errors.New("somente PDF")
 		}
 
 		if err := services.Upload(file, project.ID); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Erro ao fazer upload do arquivo"})
+			return errors.New("erro ao fazer upload")
 		}
 
 		Documents.ProjectID = project.ID
 		Documents.Name = file.Filename
-		Documents.Link = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s/%s", AWS_BUCKET_NAME, AWS_REGION, ENV, file.Filename)
+		Documents.Link = fmt.Sprintf(url, AWS_BUCKET_NAME, AWS_REGION, ENV, project.ID, file.Filename)
 		database.DB.Create(&Documents)
 		project.Documents = append(project.Documents, *Documents)
 	}
+
+	return nil
 }
 
 func NewProject(ctx *gin.Context) {
 	var user models.User
 	var project = models.NewProject()
 
-	uploadDocument(ctx, project)
+	if err := uploadDocument(ctx, project); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	if err := database.DB.Where("id = ?", ctx.PostForm("userId")).First(&user).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Usuário não encontrado"})
@@ -110,7 +115,10 @@ func EditProject(ctx *gin.Context) {
 	}
 
 	if len(files) > 0 {
-		uploadDocument(ctx, &project)
+		if err := uploadDocument(ctx, &project); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 	}
 
 	database.DB.Where("user_id = ?", id).Preload("Documents").Find(&project)
