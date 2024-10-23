@@ -57,9 +57,3 @@ jobs:
         -d '{
           "branch": "main"
         }'
-        
-    - uses: JorgeLNJunior/render-deploy@v1.4.4
-      with:
-        service_id: ${{ secrets.SERVICE_ID }}
-        api_key: ${{ secrets.RENDER_API_KEY }}
-        wait_deploy: true
