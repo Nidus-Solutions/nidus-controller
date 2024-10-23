@@ -1,3 +1,4 @@
+// Model para o documento
 package models
 
 import (
@@ -14,6 +15,7 @@ type Document struct {
 	Link      string `gorm:"type=varchar(255); not null;" json:"link"`
 }
 
+// Gerando um novo ID para o documento
 func NewDocument() *Document {
 	Document := Document{
 		ID: uuid.NewString(),
