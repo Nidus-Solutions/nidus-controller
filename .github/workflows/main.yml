@@ -40,11 +40,26 @@ jobs:
         run: go build -v -o main .
   deploy:
     runs-on: ubuntu-20.04
+    needs: buid
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: JorgeLNJunior/render-deploy@v1.4.4
-        with:
-          service_id: ${{ secrets.SERVICE_ID }}
-          api_key: ${{ secrets.RENDER_API_KEY }}
-          wait_deploy: true
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Deploy to Render
+      env:
+        RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        SERVICE_ID: ${{ secrets.SERVICE_ID }}
+      run: |
+        curl -X POST "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
+        -H "Authorization: Bearer $RENDER_API_KEY" \
+        -H "Content-Type: application/json" \
+        -d '{
+          "branch": "main"
+        }'
+        
+    - uses: JorgeLNJunior/render-deploy@v1.4.4
+      with:
+        service_id: ${{ secrets.SERVICE_ID }}
+        api_key: ${{ secrets.RENDER_API_KEY }}
+        wait_deploy: true
