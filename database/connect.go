@@ -3,36 +3,28 @@ package database
 import (
 	"fmt"
 	"log"
-	"os"
 
-	"github.com/joho/godotenv"
+	"github.com/jgb27/nidus-controller-projects/services"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
-func goDotEnvVariable(key string) string {
-
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file: %s", err)
-	}
-	fmt.Print(os.Getenv(key))
-	return os.Getenv(key)
-}
-
+// Apenas conectando ao banco de dados
 func ConnectToDatabase() {
 	var err error
-	pUser := goDotEnvVariable("POSTGRES_USER")
-	pPass := goDotEnvVariable("POSTGRES_PASSWORD")
-	pDB := goDotEnvVariable("POSTGRES_DB")
-	pHost := goDotEnvVariable("POSTGRES_HOST")
 
+	// carregando variáveis de ambiente
+	pUser := services.LoadEnv("POSTGRES_USER")
+	pPass := services.LoadEnv("POSTGRES_PASSWORD")
+	pDB := services.LoadEnv("POSTGRES_DB")
+	pHost := services.LoadEnv("POSTGRES_HOST")
+
+	// gerando url de conexão psql
 	urlDB := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432", pHost, pUser, pPass, pDB)
 
-	DB, err = gorm.Open(postgres.Open(urlDB), &gorm.Config{})
+	DB, err = gorm.Open(postgres.Open(urlDB), &gorm.Config{}) // conectando ao banco de dados
 
 	if err != nil {
 		log.Panic(err.Error())

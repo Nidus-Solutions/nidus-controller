@@ -8,16 +8,17 @@ import (
 	"github.com/jgb27/nidus-controller-projects/services"
 )
 
+// Inicindo tudo necessari antes da aplicação rodar
 func init() {
 	database.ConnectToDatabase()
 	database.DB.AutoMigrate(models.Admin{}, models.User{}, models.Project{}, models.Document{})
 }
 
 func main() {
-	port := services.LoadEnv("PORT")
+	port := services.LoadEnv("PORT") // Carregando a porta do arquivo .env
 	app := gin.Default()
 
-	routes.Routes(app)
+	routes.Routes(app) // Iniciando as rotas
 
 	app.Run(":" + port)
 }

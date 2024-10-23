@@ -1,28 +1,20 @@
+// Criando um token JWT para o usuário e para o admin,
 package controllers
 
 import (
 	"log"
-	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jgb27/nidus-controller-projects/models"
-	"github.com/joho/godotenv"
+	"github.com/jgb27/nidus-controller-projects/services"
 )
 
-func goDotEnvVariable(key string) string {
-
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file: %s", err)
-	}
-	return os.Getenv(key)
-}
-
+// gerando um token JWT para o usuário
 func GenerateTokenUser(user *models.User) string {
-	secret := goDotEnvVariable("JWT_SECRETE_KEY")
+	secret := services.LoadEnv("JWT_SECRETE_KEY")
 
+	// Criando um token JWT com o ID do usuário e a data de expiração em 24 horas
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  user.ID,
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
@@ -37,9 +29,11 @@ func GenerateTokenUser(user *models.User) string {
 	return tokenString
 }
 
+// Gere um token JWT para o admin
 func GenerateTokenAdmin(admin *models.Admin) string {
-	secret := goDotEnvVariable("JWT_SECRETE_KEY")
+	secret := services.LoadEnv("JWT_SECRETE_KEY")
 
+	// Criando um token JWT com o ID do admin, se ele é um admin e a data de expiração em 1 hora
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":      admin.ID,
 		"isAdmin": admin.IsAdmin,

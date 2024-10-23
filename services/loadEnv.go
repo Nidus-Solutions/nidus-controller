@@ -1,3 +1,4 @@
+// Esse arquivos apenas carrega as variáveis de ambiente do arquivo .env
 package services
 
 import (
