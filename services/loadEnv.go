@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 )
 
 func LoadEnv(key string) string {
@@ -13,5 +14,13 @@ func LoadEnv(key string) string {
 		log.Fatal("Error loading .env file")
 	}
 
-	return os.Getenv(key)
+	if godotenv.Load() == nil {
+		return os.Getenv(key)
+	}
+
+	if err := envconfig.Process("", &key); err != nil {
+		log.Fatal(err.Error())
+	}
+
+	return key
 }
