@@ -6,21 +6,13 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/kelseyhightower/envconfig"
 )
 
 func LoadEnv(key string) string {
-	if godotenv.Load() != nil {
+	if godotenv.Load("/etc/secrets/.env") != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	if godotenv.Load() == nil {
-		return os.Getenv(key)
-	}
+	return os.Getenv(key)
 
-	if err := envconfig.Process("", &key); err != nil {
-		log.Fatal(err.Error())
-	}
-
-	return key
 }
