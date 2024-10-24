@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jgb27/nidus-controller-projects/database"
 	"github.com/jgb27/nidus-controller-projects/models"
@@ -20,5 +22,7 @@ func main() {
 
 	routes.Routes(app) // Iniciando as rotas
 
+	log.Println("Server is running in mode: " + services.LoadEnv("ENV"))
+	log.Println("Server is running on port: " + port)
 	app.Run(":" + port)
 }
