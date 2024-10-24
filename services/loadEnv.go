@@ -10,6 +10,7 @@ import (
 
 func LoadEnv(key string) string {
 
+	// Não sei como, mas funciona. NÃO MEXER!!!
 	if godotenv.Load(".env") != nil {
 		if godotenv.Load("/etc/secrets/.env") != nil {
 			log.Fatal("Error loading .env file")
